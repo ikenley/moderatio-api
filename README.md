@@ -9,3 +9,4 @@ API backend end for [moderatio.xyz](https://moderatio.xyz). Currently hosted as 
 ## Further Reading
 
 - [Amazon.Lambda.AspNetCoreServer](https://github.com/aws/aws-lambda-dotnet/tree/master/Libraries/src/Amazon.Lambda.AspNetCoreServer)
+- [aspnet-api-versioning](https://github.com/microsoft/aspnet-api-versioning)
