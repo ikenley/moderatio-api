@@ -28,36 +28,36 @@ namespace ModaratioApi.Controllers
             return new string[] { "value1", "value2" };
         }
 
-        [HttpGet("Create")]
-        public async Task<string> Create()
-        {
-            var recipe = await _recipeService.CreateAsync(new Recipe());
-            return JsonConvert.SerializeObject(recipe);
-        }
-
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(Guid id)
+        public async Task<Recipe> Get(Guid id)
         {
-            return "value";
+            var recipe = await _recipeService.GetAsync(id);
+            return recipe;
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async Task<Recipe> Post([FromBody]Recipe recipe)
         {
+            var resultRecipe = await _recipeService.CreateAsync(recipe);
+            return resultRecipe;
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(Guid id, [FromBody]string value)
+        public async Task<Recipe> Put(Guid id, [FromBody]Recipe recipe)
         {
+            var resultRecipe = await _recipeService.UpdateAsync(id, recipe);
+            return resultRecipe;
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(Guid id)
+        public async Task<int> Delete(Guid id)
         {
+            var statusCode = await _recipeService.DeleteAsync(id);
+            return statusCode;
         }
     }
 }

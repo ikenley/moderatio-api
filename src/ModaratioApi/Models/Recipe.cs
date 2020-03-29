@@ -16,6 +16,8 @@ namespace ModaratioApi.Models
         [DynamoDBHashKey]
         public Guid Id { get; set; }
 
+        public string AuthorId { get; set; }
+
         public string Name { get; set; }
 
         public string Description { get; set; }
@@ -23,8 +25,6 @@ namespace ModaratioApi.Models
         public string Url { get; set; }
 
         public string ImageSource { get; set; }
-
-        public string AuthorId { get; set; }
 
         public Recipe() { }
 
