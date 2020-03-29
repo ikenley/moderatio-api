@@ -14,6 +14,13 @@ namespace ModaratioApi.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     public class RecipesController : Controller
     {
+        private readonly IRecipeService _recipeService;
+
+        public RecipesController(IRecipeService recipeService)
+        {
+            _recipeService = recipeService;
+        }
+
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
@@ -24,10 +31,7 @@ namespace ModaratioApi.Controllers
         [HttpGet("Create")]
         public async Task<string> Create()
         {
-            var client = new AmazonDynamoDBClient();
-            var context = new DynamoDBContext(client);
-            var recipe = new Recipe("test", null, null, null, null);
-            await context.SaveAsync(recipe);
+            var recipe = await _recipeService.CreateAsync(new Recipe());
             return JsonConvert.SerializeObject(recipe);
         }
 
