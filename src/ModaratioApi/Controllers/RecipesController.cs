@@ -23,9 +23,9 @@ namespace ModaratioApi.Controllers
 
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<List<Recipe>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return await _recipeService.GetAllAsync();
         }
 
         // GET api/values/5

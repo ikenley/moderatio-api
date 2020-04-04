@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -32,16 +33,16 @@ namespace ModaratioApi.Models
             return await _context.LoadAsync<Recipe>(id).ConfigureAwait(false);
         }
 
-        // public async Task<List<Recipe>> GetAllAsync()
-        // {
-        //     //TODO this should probably be for a given AuthorId
-        //     var scanConditions = new[] {
-        //         new ScanCondition("Id", ScanOperator.IsNotNull, null)
-        //     };
-        //     var recipes = await _context.ScanAsync<Recipe>(scanConditions).GetRemainingAsync();
-        //     recipes = recipes.Take(100).ToList();
-        //     return recipes;
-        // }
+        public async Task<List<Recipe>> GetAllAsync()
+        {
+            //TODO this should probably be for a given AuthorId
+            var scanConditions = new[] {
+                new ScanCondition("Id", ScanOperator.IsNotNull, new object[0])
+            };
+            var recipes = await _context.ScanAsync<Recipe>(scanConditions).GetRemainingAsync();
+            recipes = recipes.Take(100).ToList();
+            return recipes;
+        }
 
         public async Task<Recipe> UpdateAsync(Guid id, Recipe nextRecipe)
         {
