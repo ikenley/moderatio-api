@@ -17,6 +17,7 @@ namespace ModaratioApi
     public class Startup
     {
         public const string AppS3BucketKey = "AppS3Bucket";
+        private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
         public Startup(IConfiguration configuration)
         {
@@ -28,7 +29,17 @@ namespace ModaratioApi
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins("http://localhost:8080", "*.moderatio.xyz")
+                        .SetIsOriginAllowedToAllowWildcardSubdomains()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddApiVersioning();
 
@@ -47,14 +58,14 @@ namespace ModaratioApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseCors(
-                    options => options.WithOrigins("http://localhost:8080").AllowAnyMethod()
-                );
             }
             else
             {
                 app.UseHsts();
             }
+
+            // Since this will always sit behind API Gateway and use Sig4 Auth, probably safe?
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseHttpsRedirection();
             app.UseMvc();
