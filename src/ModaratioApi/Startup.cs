@@ -29,17 +29,7 @@ namespace ModaratioApi
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddPolicy(MyAllowSpecificOrigins,
-                builder =>
-                {
-                    builder.WithOrigins("http://localhost:8080", "*.moderatio.xyz")
-                        .SetIsOriginAllowedToAllowWildcardSubdomains()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-            });
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddApiVersioning();
 
@@ -64,8 +54,8 @@ namespace ModaratioApi
                 app.UseHsts();
             }
 
-            // Since this will always sit behind API Gateway and use Sig4 Auth, probably safe?
-            app.UseCors(MyAllowSpecificOrigins);
+            // Since this will always sit behind API Gateway and use Sig4 Auth...
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseHttpsRedirection();
             app.UseMvc();
