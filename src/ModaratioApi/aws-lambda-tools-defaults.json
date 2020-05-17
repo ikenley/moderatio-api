@@ -14,5 +14,7 @@
   "framework": "netcoreapp2.1",
   "s3-prefix": "ModaratioApi/",
   "template": "serverless.template",
-  "template-parameters": "ShouldCreateBucket=true;BucketName=moderatio-api-lambda"
+  "template-parameters": "ShouldCreateBucket=false;BucketName=moderatio-api-lambda",
+  "s3-bucket": "moderatio-api-lambda",
+  "stack-name": "moderatio"
 }

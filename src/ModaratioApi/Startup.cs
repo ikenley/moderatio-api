@@ -17,7 +17,6 @@ namespace ModaratioApi
     public class Startup
     {
         public const string AppS3BucketKey = "AppS3Bucket";
-        private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
         public Startup(IConfiguration configuration)
         {
@@ -45,14 +44,38 @@ namespace ModaratioApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseDeveloperExceptionPage();
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+
             }
             else
             {
                 app.UseHsts();
             }
+
+            // app.UseExceptionHandler(errorApp =>
+            // {
+            //     errorApp.Run(async context =>
+            //     {
+            //         var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
+            //         var exception = errorFeature.Error;
+
+            //         var problemDetails = new ProblemDetails
+            //         {
+            //             Title = R.ErrorUnexpected,
+            //             Status = status,
+            //             Detail =
+            //             $"{exception.Message} {exception.InnerException?.Message}"
+            //         };
+
+            //         context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            //         context.Response.StatusCode = problemDetails.Status.GetValueOrDefault();
+            //         context.Response.WriteJson(problemDetails, "application/problem+json");
+
+            //         await Task.CompletedTask;
+            //     });
+            // });
 
             // Since this will always sit behind API Gateway and use Sig4 Auth...
             app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
