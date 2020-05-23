@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using ModaratioApi.Models;
+using Newtonsoft.Json;
 
 namespace ModaratioApi
 {
@@ -31,6 +36,31 @@ namespace ModaratioApi
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddApiVersioning();
+
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
+                        {
+                            // get JsonWebKeySet from AWS
+                            var json = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
+                            // serialize the result
+                            var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+                            // cast the result to be the type expected by IssuerSigningKeyResolver
+                            return (IEnumerable<SecurityKey>)keys;
+                        },
+
+                        ValidIssuer = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_wXDeH5iU1", //TODO move to appsettings.json
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = true,
+                        ValidateLifetime = true,
+                        ValidAudience = "7bb4a44bol7f3ru4koi2mvcan5", //TODO move to appsettings.json
+                        ValidateAudience = true
+                    };
+                });
 
             // Add AWS svcs to the ASP.NET Core dependency injection framework.
             var awsOptions = Configuration.GetAWSOptions();
@@ -53,33 +83,9 @@ namespace ModaratioApi
             {
                 app.UseHsts();
             }
-
-            // app.UseExceptionHandler(errorApp =>
-            // {
-            //     errorApp.Run(async context =>
-            //     {
-            //         var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
-            //         var exception = errorFeature.Error;
-
-            //         var problemDetails = new ProblemDetails
-            //         {
-            //             Title = R.ErrorUnexpected,
-            //             Status = status,
-            //             Detail =
-            //             $"{exception.Message} {exception.InnerException?.Message}"
-            //         };
-
-            //         context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-            //         context.Response.StatusCode = problemDetails.Status.GetValueOrDefault();
-            //         context.Response.WriteJson(problemDetails, "application/problem+json");
-
-            //         await Task.CompletedTask;
-            //     });
-            // });
-
             // Since this will always sit behind API Gateway and use Sig4 Auth...
             app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
+            app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
         }
